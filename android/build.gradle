@@ -18,6 +18,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+       
     }
 }
 
@@ -46,12 +47,13 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
     }
 
     dependencies {
         testImplementation 'org.jetbrains.kotlin:kotlin-test'
         testImplementation 'org.mockito:mockito-core:5.0.0'
+         implementation files('libs/ChipletRing1.0.10.aar')
     }
 
     testOptions {
