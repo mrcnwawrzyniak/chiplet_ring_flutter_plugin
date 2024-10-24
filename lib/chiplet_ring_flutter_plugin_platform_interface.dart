@@ -8,7 +8,8 @@ abstract class ChipletRingFlutterPluginPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static ChipletRingFlutterPluginPlatform _instance = MethodChannelChipletRingFlutterPlugin();
+  static ChipletRingFlutterPluginPlatform _instance =
+      MethodChannelChipletRingFlutterPlugin();
 
   /// The default instance of [ChipletRingFlutterPluginPlatform] to use.
   ///
@@ -25,5 +26,10 @@ abstract class ChipletRingFlutterPluginPlatform extends PlatformInterface {
 
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
+  }
+
+  Future<String?> initializeChipletRingSDK() {
+    throw UnimplementedError(
+        'initializeChipletRingSDK() has not been implemented.');
   }
 }
