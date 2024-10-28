@@ -5,7 +5,7 @@ class ChipletRingFlutterPlugin {
     return ChipletRingFlutterPluginPlatform.instance.getPlatformVersion();
   }
 
-  Future<String?> initializeChipletRingSDK() {
-    return ChipletRingFlutterPluginPlatform.instance.initializeChipletRingSDK();
+  Future<String?> initialize() {
+    return ChipletRingFlutterPluginPlatform.instance.initialize();
   }
 }

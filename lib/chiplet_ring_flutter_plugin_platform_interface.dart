@@ -28,7 +28,7 @@ abstract class ChipletRingFlutterPluginPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  Future<String?> initializeChipletRingSDK() {
+  Future<String?> initialize() {
     throw UnimplementedError(
         'initializeChipletRingSDK() has not been implemented.');
   }

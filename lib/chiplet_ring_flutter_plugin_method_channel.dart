@@ -16,9 +16,9 @@ class MethodChannelChipletRingFlutterPlugin
   }
 
   @override
-  Future<String?> initializeChipletRingSDK() async {
+  Future<String?> initialize() async {
     try {
-      return await methodChannel.invokeMethod<String>('initializeChipletRingSDK');
+      return await methodChannel.invokeMethod<String>('initialize');
     } on PlatformException catch (e) {
       return 'Failed to initialize chiplet ring: ${e.message}';
     }

@@ -25,12 +25,12 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initPlatformState();
-    initializeChipletRingFlutterPlugin();
+    initialize();
   }
 
-  Future<void> initializeChipletRingFlutterPlugin() async {
+  Future<void> initialize() async {
     try {
-      await _chipletRingFlutterPlugin.initializeChipletRingSDK();
+      await _chipletRingFlutterPlugin.initialize();
     } on PlatformException {
       print('Failed to initialize chiplet ring.');
     }
@@ -47,9 +47,8 @@ class _MyAppState extends State<MyApp> {
     }
 
     try {
-      chipletRingStatus =
-          await _chipletRingFlutterPlugin.initializeChipletRingSDK() ??
-              'Unknown chiplet ring status';
+      chipletRingStatus = await _chipletRingFlutterPlugin.initialize() ??
+          'Unknown chiplet ring status';
     } on PlatformException {
       chipletRingStatus = 'Failed to get chiplet ring status.';
     }

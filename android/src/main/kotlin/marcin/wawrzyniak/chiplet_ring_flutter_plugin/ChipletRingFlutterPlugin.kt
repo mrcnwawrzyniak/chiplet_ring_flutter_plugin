@@ -25,8 +25,8 @@ class ChipletRingFlutterPlugin : FlutterPlugin, MethodCallHandler {
         result.success("Android ${android.os.Build.VERSION.RELEASE}")
       }
 
-      "initializeChipletRingSDK" -> {
-        initializeChipletRingSDK(applicationContext as Application)
+      "initialize" -> {
+        initialize(applicationContext as Application)
         result.success("Chiplet Ring SDK initialized")
       }
 
@@ -40,7 +40,7 @@ class ChipletRingFlutterPlugin : FlutterPlugin, MethodCallHandler {
     channel.setMethodCallHandler(null)
   }
 
-  private fun initializeChipletRingSDK(application: Application) {
+  private fun initialize(application: Application) {
     LmAPI.init(application)
   }
 }
