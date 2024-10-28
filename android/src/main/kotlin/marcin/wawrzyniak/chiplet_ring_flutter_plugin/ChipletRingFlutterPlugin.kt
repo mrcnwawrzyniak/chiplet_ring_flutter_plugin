@@ -24,7 +24,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
 /** ChipletRingFlutterPlugin */
-class ChipletRingFlutterPlugin : FlutterPlugin, MethodCallHandler, IResponseListener {
+class ChipletRingFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
   private lateinit var channel: MethodChannel
   private lateinit var eventChannel: EventChannel
@@ -117,7 +117,81 @@ class ChipletRingFlutterPlugin : FlutterPlugin, MethodCallHandler, IResponseList
   private fun initializeSdk(application: Application) {
     LmAPI.init(application)
     LmAPI.setDebug(true)
-    LmAPI.addWLSCmdListener(context, this)
+
+    // Dodanie listenera za pomocą anonimowej implementacji IResponseListener
+    LmAPI.addWLSCmdListener(context, object : IResponseListener {
+      override fun lmBleConnecting(i: Int) {
+        sendEvent(mapOf("event" to "ble_connecting", "code" to i))
+      }
+
+      override fun lmBleConnectionSucceeded(i: Int) {
+        BLEUtils.setGetToken(true)
+        sendEvent(mapOf("event" to "connected", "code" to i))
+      }
+
+      override fun lmBleConnectionFailed(i: Int) {
+        sendEvent(mapOf("event" to "connection_failed", "code" to i))
+        Handler(Looper.getMainLooper()).post {
+          Toast.makeText(context, "Połączenie nie powiodło się", Toast.LENGTH_SHORT).show()
+        }
+      }
+
+      override fun VERSION(b: Byte, s: String) {
+        sendEvent(mapOf("event" to "version_info", "version" to s))
+      }
+
+      override fun syncTime(b: Byte, var2: ByteArray) {
+        sendEvent(mapOf("event" to if (b == 0.toByte()) "sync_time_success" else "sync_time_failed"))
+      }
+
+      override fun stepCount(bytes: ByteArray, b: Byte) {
+        // Obsługa danych dotyczących kroków, jeśli potrzebne
+      }
+
+      override fun battery(b: Byte, b1: Byte) {
+        sendEvent(mapOf("event" to "battery_level", "level" to b1.toInt()))
+      }
+
+      override fun timeOut() {
+        sendEvent(mapOf("event" to "timeout"))
+      }
+
+      override fun saveData(s: String) {
+        // Obsługa zapisywania danych, jeśli potrzebne
+      }
+
+      override fun reset(bytes: ByteArray) {
+        // Obsługa resetu, jeśli potrzebne
+      }
+
+      override fun collection(bytes: ByteArray, b: Byte) {
+        // Obsługa kolekcji danych, jeśli potrzebne
+      }
+
+      override fun BPwaveformData(b: Byte, b1: Byte, s: String) {
+        // Obsługa danych BP, jeśli potrzebne
+      }
+
+      override fun onSport(i: Int, bytes: ByteArray) {
+        // Obsługa danych sportowych, jeśli potrzebne
+      }
+
+      override fun breathLight(b: Byte) {
+        // Obsługa breath light, jeśli potrzebne
+      }
+
+      override fun SET_HID(b: Byte) {
+        // Obsługa SET_HID, jeśli potrzebne
+      }
+
+      override fun GET_HID(b: Byte, b1: Byte, b2: Byte) {
+        // Obsługa GET_HID, jeśli potrzebne
+      }
+
+      override fun GET_HID_CODE(bytes: ByteArray) {
+        // Obsługa GET_HID_CODE, jeśli potrzebne
+      }
+    })
 
     val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     bluetoothAdapter = bluetoothManager.adapter
@@ -146,22 +220,18 @@ class ChipletRingFlutterPlugin : FlutterPlugin, MethodCallHandler, IResponseList
   }
 
   private fun getBatteryLevel() {
-    // Implementacja pobierania poziomu baterii przez SDK
     LmAPI.GET_BATTERY(0x00)
   }
 
   private fun getVersion() {
-    // Implementacja pobierania wersji SDK
     LmAPI.GET_VERSION(0x00)
   }
 
   private fun syncTime() {
-    // Implementacja synchronizacji czasu
     LmAPI.SYNC_TIME()
   }
 
   private fun startHeartRateMeasurement() {
-    // Implementacja pomiaru tętna
     LmAPI.GET_HEART_ROTA(1, object : IHeartListener {
       override fun progress(progress: Int) {
         sendEvent(mapOf("event" to "heart_rate_progress", "progress" to progress))
@@ -180,7 +250,6 @@ class ChipletRingFlutterPlugin : FlutterPlugin, MethodCallHandler, IResponseList
       }
 
       override fun waveformData(seq: Byte, number: Byte, s: String) {
-        // Obsługa danych waveform, jeśli potrzebne
         sendEvent(mapOf("event" to "heart_rate_waveform", "seq" to seq.toInt(), "number" to number.toInt(), "data" to s))
       }
 
@@ -198,79 +267,6 @@ class ChipletRingFlutterPlugin : FlutterPlugin, MethodCallHandler, IResponseList
     Handler(Looper.getMainLooper()).post {
       eventSink?.success(event)
     }
-  }
-
-  // Implementacja metod interfejsu IResponseListener
-  override fun lmBleConnecting(i: Int) {
-    sendEvent(mapOf("event" to "ble_connecting", "code" to i))
-  }
-
-  override fun lmBleConnectionSucceeded(i: Int) {
-    BLEUtils.setGetToken(true)
-    sendEvent(mapOf("event" to "connected", "code" to i))
-  }
-
-  override fun lmBleConnectionFailed(i: Int) {
-    sendEvent(mapOf("event" to "connection_failed", "code" to i))
-    Handler(Looper.getMainLooper()).post {
-      Toast.makeText(context, "Połączenie nie powiodło się", Toast.LENGTH_SHORT).show()
-    }
-  }
-
-  override fun VERSION(b: Byte, s: String) {
-    sendEvent(mapOf("event" to "version_info", "version" to s))
-  }
-
-  override fun syncTime(b: Byte, var2: ByteArray) {
-    sendEvent(mapOf("event" to if (b == 0.toByte()) "sync_time_success" else "sync_time_failed"))
-  }
-
-  override fun stepCount(bytes: ByteArray, b: Byte) {
-    // Obsługa danych dotyczących kroków, jeśli potrzebne
-  }
-
-  override fun battery(b: Byte, b1: Byte) {
-    sendEvent(mapOf("event" to "battery_level", "level" to b1.toInt()))
-  }
-
-  override fun timeOut() {
-    sendEvent(mapOf("event" to "timeout"))
-  }
-
-  override fun saveData(s: String) {
-    // Obsługa zapisywania danych, jeśli potrzebne
-  }
-
-  override fun reset(bytes: ByteArray) {
-    // Obsługa resetu, jeśli potrzebne
-  }
-
-  override fun collection(bytes: ByteArray, b: Byte) {
-    // Obsługa kolekcji danych, jeśli potrzebne
-  }
-
-  override fun BPwaveformData(b: Byte, b1: Byte, s: String) {
-    // Obsługa danych BP, jeśli potrzebne
-  }
-
-  override fun onSport(i: Int, bytes: ByteArray) {
-    // Obsługa danych sportowych, jeśli potrzebne
-  }
-
-  override fun breathLight(b: Byte) {
-    // Obsługa breath light, jeśli potrzebne
-  }
-
-  override fun SET_HID(b: Byte) {
-    // Obsługa SET_HID, jeśli potrzebne
-  }
-
-  override fun GET_HID(b: Byte, b1: Byte, b2: Byte) {
-    // Obsługa GET_HID, jeśli potrzebne
-  }
-
-  override fun GET_HID_CODE(bytes: ByteArray) {
-    // Obsługa GET_HID_CODE, jeśli potrzebne
   }
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
