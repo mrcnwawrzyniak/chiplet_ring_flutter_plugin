@@ -9,7 +9,7 @@ abstract class ChipletRingFlutterPluginPlatform extends PlatformInterface {
   static final Object _token = Object();
 
   static ChipletRingFlutterPluginPlatform _instance =
-      MethodChannelChipletRingFlutterPlugin();
+  MethodChannelChipletRingFlutterPlugin();
 
   /// The default instance of [ChipletRingFlutterPluginPlatform] to use.
   ///
@@ -26,6 +26,9 @@ abstract class ChipletRingFlutterPluginPlatform extends PlatformInterface {
 
   /// Initializes the Chiplet Ring SDK.
   Future<void> initialize();
+
+  /// Starts scanning for devices.
+  Future<void> startScan();
 
   /// Connects to the ring using the provided MAC address.
   Future<void> connectToRing(String mac);

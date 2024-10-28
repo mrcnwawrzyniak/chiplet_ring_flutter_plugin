@@ -5,6 +5,10 @@ class ChipletRingFlutterPlugin {
     return ChipletRingFlutterPluginPlatform.instance.initialize();
   }
 
+  Future<void> startScan() {
+    return ChipletRingFlutterPluginPlatform.instance.startScan();
+  }
+
   Future<void> connectToRing(String mac) {
     return ChipletRingFlutterPluginPlatform.instance.connectToRing(mac);
   }

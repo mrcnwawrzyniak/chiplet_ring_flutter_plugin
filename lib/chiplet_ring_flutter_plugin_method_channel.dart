@@ -23,11 +23,20 @@ class MethodChannelChipletRingFlutterPlugin
   }
 
   @override
+  Future<void> startScan() async {
+    try {
+      await methodChannel.invokeMethod('startScan',);
+    } on PlatformException catch (e) {
+      throw 'Failed to scan: ${e.message}';
+    }
+  }
+  
+  @override
   Future<void> connectToRing(String mac) async {
     try {
       await methodChannel.invokeMethod('connectToRing', {'mac': mac});
     } on PlatformException catch (e) {
-      throw 'Failed to connect to ring: ${e.message}';
+      throw 'Failed to scan: ${e.message}';
     }
   }
 
