@@ -1,4 +1,4 @@
-package com.yourpackage
+package marcin.wawrzyniak.chiplet_ring_flutter_plugin
 
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
