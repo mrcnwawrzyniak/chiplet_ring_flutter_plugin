@@ -24,12 +24,27 @@ abstract class ChipletRingFlutterPluginPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
-  }
+  /// Initializes the Chiplet Ring SDK.
+  Future<void> initialize();
 
-  Future<String?> initialize() {
-    throw UnimplementedError(
-        'initializeChipletRingSDK() has not been implemented.');
-  }
+  /// Connects to the ring using the provided MAC address.
+  Future<void> connectToRing(String mac);
+
+  /// Retrieves the battery level of the ring.
+  Future<void> getBatteryLevel();
+
+  /// Retrieves the version of the SDK or device.
+  Future<void> getVersion();
+
+  /// Synchronizes the time with the ring.
+  Future<void> syncTime();
+
+  /// Starts the heart rate measurement.
+  Future<void> startHeartRateMeasurement();
+
+  /// Retrieves the platform version.
+  Future<String?> getPlatformVersion();
+
+  /// Stream of events from the native side.
+  Stream<Map<String, dynamic>> get eventStream;
 }

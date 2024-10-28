@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:chiplet_ring_flutter_plugin/chiplet_ring_flutter_plugin.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,72 +11,98 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  String _chipletRingStatus = 'Unknown';
-
-  final _chipletRingFlutterPlugin = ChipletRingFlutterPlugin();
+  final ChipletRingFlutterPlugin _chipletRing = ChipletRingFlutterPlugin();
+  StreamSubscription<Map<String, dynamic>>? _subscription;
+  String _status = "Nie połączono";
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-    initialize();
+    _initializePlugin();
+    _listenToEvents();
   }
 
-  Future<void> initialize() async {
+  Future<void> _initializePlugin() async {
     try {
-      await _chipletRingFlutterPlugin.initialize();
-    } on PlatformException {
-      print('Failed to initialize chiplet ring.');
+      await _chipletRing.initialize();
+    } catch (e) {
+      print('Błąd podczas inicjalizacji SDK: $e');
     }
   }
 
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    String chipletRingStatus;
-    try {
-      platformVersion = await _chipletRingFlutterPlugin.getPlatformVersion() ??
-          'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
+  void _listenToEvents() {
+    _subscription = _chipletRing.eventStream.listen((event) {
+      setState(() {
+        _status = event.toString();
+      });
 
-    try {
-      chipletRingStatus = await _chipletRingFlutterPlugin.initialize() ??
-          'Unknown chiplet ring status';
-    } on PlatformException {
-      chipletRingStatus = 'Failed to get chiplet ring status.';
-    }
-
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-      _chipletRingStatus = chipletRingStatus;
+      // Możesz dodać dodatkową logikę obsługi zdarzeń tutaj
+      if (event['event'] == 'connected') {
+        // Urządzenie połączone
+        print('Urządzenie połączone');
+      } else if (event['event'] == 'battery_level') {
+        int battery = event['level'];
+        // Aktualizuj poziom baterii w interfejsie
+        print('Poziom baterii: $battery%');
+      }
+      // Obsługa innych zdarzeń...
     });
   }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  void _connectToRing() async {
+    String macAddress = "B2:20:11:00:00:C6"; // Przykładowy MAC
+    try {
+      await _chipletRing.connectToRing(macAddress);
+    } catch (e) {
+      print('Błąd podczas łączenia: $e');
+    }
+  }
+
+  void _getBatteryLevel() async {
+    try {
+      await _chipletRing.getBatteryLevel();
+    } catch (e) {
+      print('Błąd podczas pobierania poziomu baterii: $e');
+    }
+  }
+
+  // Dodaj inne metody wywołujące funkcje pluginu
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              child: Text('Running on: $_platformVersion\n'),
-            ),
-            Center(
-              child: Text('ChipletSDK: $_chipletRingStatus\n'),
-            ),
-          ],
+        appBar: AppBar(title: const Text("Chiplet Ring Flutter Plugin")),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Status: $_status',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _connectToRing,
+                child: const Text("Połącz z Ringiem"),
+              ),
+              ElevatedButton(
+                onPressed: _getBatteryLevel,
+                child: const Text("Pobierz Poziom Baterii"),
+              ),
+              // Dodaj inne przyciski
+            ],
+          ),
         ),
       ),
     );
